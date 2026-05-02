@@ -1,6 +1,6 @@
-# claude-sync 设计文档
+# claude-code-config-sync 设计文档
 
-> **目标：** Claude Code 全局插件，跨机器同步配置，通过 GitHub 作为后端存储。
+> **目标：** Claude Code 配置同步工具，支持 slash command 和独立 CLI 两种使用方式，通过 GitHub 作为后端存储实现跨机器同步。
 
 ---
 
@@ -11,22 +11,23 @@
 | 配置 | 存储位置 | GitHub 路径 |
 |------|----------|-------------|
 | **local** | 代码仓内的 `.claude/` 和 `CLAUDE.md` | `claude-code-config-sync/local/` |
-| **global** | `~/.claude/` | `claude-code-config-sync/global/` |
+| **global** | `~/.claude/`（不含 CLAUDE.md） | `claude-code-config-sync/global/` |
 
 ### 同步方向
 
 ```
 push（上传统一仓库）:
-  当前代码仓/.claude/ + CLAUDE.md  →  github.com/{user}/claude-code-config-sync/local/
-                                       （按文件类型增量合并）
+  ~/.claude/（不含 CLAUDE.md）→  github.com/{user}/claude-code-config-sync/global/
+  --path 指定目录的 .claude/ + CLAUDE.md  →  github.com/{user}/claude-code-config-sync/local/
 
-create（下载到代码仓）:
-  github.com/{user}/claude-code-config-sync/local/  →  当前代码仓/
+create（下载到本地）:
+  github.com/{user}/claude-code-config-sync/global/  →  ~/.claude/（默认）
+  github.com/{user}/claude-code-config-sync/local/   →  --path 指定目录（.claude/ + CLAUDE.md）
 ```
 
-### 合并策略（push 时）
+### 合并策略
 
-GitHub 上的仓库只保留一份汇总内容：
+GitHub 仓库中只保留一份汇总内容：
 
 ```
 claude-code-config-sync/
@@ -40,75 +41,76 @@ claude-code-config-sync/
     └── ...
 ```
 
-**文件合并规则：**
+**push 合并规则：**
 - 文件不存在 → 新增
 - 文件存在且相同 → 跳过
-- 文件存在且不同 → **由 Claude Code LLM 分析差异，合并增量到远程**
+- 文件存在且不同 → **由 Claude Code CLI 内置 LLM 分析差异，增量更新到远程**
 
-**冲突处理流程：**
-```
-1. 检测到本地文件与远程文件内容不同
-2. LLM 分析两份文件的差异
-3. LLM 输出合并后的增量内容
-4. 增量更新到 GitHub（而非覆盖整个文件）
-```
+**create 行为：**
+- 直接覆盖本地文件
 
 ---
 
 ## 二、命令设计
 
-### /sync — Claude Code 内置命令
+### /claude-sync — Claude Code 命令
 
-用户输入 `/sync` 后弹出选择菜单：
+用户输入 `/claude-sync` 后弹出选择菜单：
 
 ```
-/sync
-├── push              → 上传 local 配置
-├── push --global     → 上传 global + local
-├── create            → 下载 local 到当前目录
-└── create --global   → 下载 local + global
+/claude-sync
+├── push                → 上传 local 配置
+├── push                → 上传 global 配置（默认）
+├── create              → 下载 global 到 ~/.claude/（默认）
+├── create --path=<路径> → 下载 local 到指定目录（--path 必须有值）
 ```
+
+> `--path` 为空则被忽略，默认下载到当前目录。
 
 ### push — 上传配置
 
 ```bash
-# 上传当前代码仓的 local 配置
-sync push
+# 上传 global 配置（默认）
+claude-sync push
 
-# 上传 global + local
-sync push --global
+# 上传 local 配置
+claude-sync push --path=/some/path
 ```
 
 **行为逻辑：**
-- 无参数：在当前目录寻找 Git 仓库，找到就上传，找不到就跳过（不报错）
-- `--global`：额外上传 `~/.claude/` 到 `claude-code-config-sync` 的 `global/` 目录
+- `push` 默认上传 global 配置（`~/.claude/`）
+- `--path` 有值时上传 local 配置（`--path` 指定目录的 `.claude/`）
+- 遍历 `.claude/` 各子目录，如果存在就逐个分析增量合并
 
 **自动创建仓库：**
 - 首次 push 到仓库时自动创建（如本地已有仓库则跳过）
+- 仓库默认为 **private**（用户需自行在 GitHub 创建空仓库并配置认证）
 
 ### create — 下载配置
 
 ```bash
-# 下载 local 配置到当前目录
-sync create
+# 下载 global 到 ~/.claude/（默认）
+claude-sync create
 
-# 额外同步 global 配置到 ~/.claude/
-sync create --global
+# 下载 local 到指定目录（--path 必须有值）
+claude-sync create --path=/some/path
 ```
 
-**create 前置检查（local 和 global 分别检查）：**
+> `--path` 为空则报错，--path 必须有值才对 local 操作
+
+**前置检查：**
 
 | 检查项 | 本地状态 | 行为 |
-|---------|---------|------|
-| local | 当前目录无 .claude/ 和 CLAUDE.md | 直接下载 |
-| local | 当前目录有 .claude/ 或 CLAUDE.md | 询问用户 → 确认覆盖 / 否认终止 |
-| global | ~/.claude/ 不存在 | 直接下载 |
-| global | ~/.claude/ 已存在 | 询问用户 → 确认覆盖 / 否认终止 |
+|--------|----------|------|
+| global | `~/.claude/` 不存在 | 直接下载 |
+| global | `~/.claude/` 已存在 | 询问用户 → 确认覆盖 / 否认终止 |
+| local | 指定目录无 .claude/ | 直接下载 |
+| local | 指定目录有 .claude/ | 询问用户 → 确认覆盖 / 否认终止 |
 
 **独立检查规则：**
-- local 和 global 独立判断，互不影响
+- global 和 local 独立判断，互不影响
 - 用户同意覆盖 → 下载并覆盖本地文件
-- 用户否认 → 终止该层（另一层不受影响）
+- 用户否认 → 终止操作
 
 ---
 
@@ -117,8 +119,7 @@ sync create --global
 ### 自动检测顺序
 
 1. **GitHub Token** — 环境变量 `GITHUB_TOKEN`
-2. **GitHub App** — 环境变量 `GITHUB_APP_ID` + `GITHUB_APP_KEY`
-3. **SSH Key** — SSH Agent 中已加载的密钥
+2. **SSH Key** — SSH Agent 中已加载的密钥
 
 ### 引导设置
 
@@ -127,11 +128,12 @@ sync create --global
 未检测到 GitHub 凭证，请选择设置方式：
 
 1. GitHub Token（设置 GITHUB_TOKEN 环境变量）
-2. GitHub App（设置 GITHUB_APP_ID 和 GITHUB_APP_KEY）
-3. SSH Key（确保 ssh-agent 已加载密钥）
+2. SSH Key（确保 ssh-agent 已加载密钥）
 
 请选择设置方式（或按 q 退出）：
 ```
+
+> 认证由用户自行解决，插件不处理复杂的 GitHub App 认证流程。
 
 ---
 
@@ -148,7 +150,7 @@ sync create --global
 ### 项目结构
 
 ```
-claude-sync/
+claude-code-config-sync/
 ├── src/
 │   ├── index.ts          # 插件入口（slash command 注册）
 │   ├── commands/
@@ -166,30 +168,32 @@ claude-sync/
 ├── tsconfig.json
 └── README.md
 
-~/.claude/commands/           # Claude Code 命令定义
-└── sync.md                   # /sync 命令菜单定义
+~/.claude/commands/               # Claude Code 命令定义
+└── claude-sync.md                # /claude-sync 命令菜单定义
 ```
 
 ### Claude Code 集成方式
 
-在 `~/.claude/commands/sync.md` 中定义 slash command 菜单：
+在 `~/.claude/commands/claude-sync.md` 中定义 slash command 菜单：
 
 ```markdown
-# sync
+# claude-sync
 
 Claude Code 配置同步工具。
 
 ## 选项
 
-- push：上传当前代码仓配置到 GitHub
-- push --global：上传 global + local 配置
-- create：下载 GitHub 配置到当前代码仓
-- create --global：下载 global + local 配置
+- push：上传 global 配置（默认）
+- push --path=\<路径\>：上传 local 配置
+- create：下载 global 到 ~/.claude/（默认）
+- create --path=\<路径\>：下载 local 到指定目录（--path 必须有值）
 
 ## 使用场景
 
-- `/sync push`：保存当前项目的配置
-- `/sync create`：恢复之前同步的配置
+- `/claude-sync push`：保存全局配置
+- `/claude-sync push --path=/some/path`：保存指定项目的配置
+- `/claude-sync create`：恢复全局配置
+- `/claude-sync create --path=/some/path`：恢复指定项目的配置
 ```
 
 ---
@@ -205,7 +209,7 @@ Claude Code 配置同步工具。
   "description": "Claude Code config sync via GitHub",
   "main": "dist/index.js",
   "bin": {
-    "claude-sync": "bin/claude-sync.js"
+    "claude-code-config-sync": "bin/claude-code-config-sync.js"
   },
   "keywords": ["claude-code", "claude-code-config", "sync", "dotfiles"],
   "engines": {
@@ -220,8 +224,8 @@ Claude Code 配置同步工具。
 
 | 场景 | 处理方式 |
 |------|----------|
-| push 无 Git 仓库 | 跳过，静默返回 |
-| push 有冲突 | 调用 Claude Code LLM 分析差异，合并增量到远程 |
+| push 无 Git 仓库 | 输出 info 日志并跳过 |
+| push 有冲突 | 调用 Claude Code CLI 内置 LLM 分析差异，增量更新到远程 |
 | create 目标已有 .claude/ | 询问用户确认 |
 | 无 GitHub 凭证 | 显示引导设置菜单 |
 | 网络错误 | 重试 3 次后报错 |
@@ -232,8 +236,8 @@ Claude Code 配置同步工具。
 
 1. **开发阶段** → `npm link` 本地测试
 2. **发布 npm** → `npm publish --access public`
-3. **用户安装** → `npm install -g @laozhai/claude-config-sync`
-4. **使用** → Claude Code 中输入 `/sync`
+3. **用户安装** → `npm install -g @laozhai/claude-code-config-sync`
+4. **使用** → Claude Code 中用 `/claude-sync push`，终端中用 `claude-sync create`（默认 global）
 
 ---
 
@@ -241,24 +245,26 @@ Claude Code 配置同步工具。
 
 ### 首次使用
 
-1. 安装插件：`npm install -g @laozhai/claude-config-sync`
-2. 重启 Claude Code
-3. 输入 `/sync`，选择操作
+1. 安装：`npm install -g @laozhai/claude-config-sync`
+2. Claude Code 中使用 push：
+   - 重启 Claude Code
+   - 输入 `/claude-sync push`（默认 global）或 `/claude-sync push --path=/some/path`（local）
+3. 终端中使用 create：
+   - 直接运行 `claude-sync create`（默认 global）
+   - 或 `claude-sync create --path=/some/path`（local）
 
 ### 日常使用
 
+**在 Claude Code 中使用（push 上传配置）：**
 ```bash
-# 场景1：保存当前项目配置
-/sync → push
+/claude-sync push              → 上传 global 配置（默认）
+/claude-sync push --path=/some/path → 上传 local 配置
+```
 
-# 场景2：多机器同步全局配置
-/sync → push --global
-
-# 场景3：新机器恢复配置
-/sync → create
-
-# 场景4：多机器恢复全局配置
-/sync → create --global
+**在终端中使用（create 下载配置）：**
+```bash
+claude-sync create                      → 下载 global 到 ~/.claude/（默认）
+claude-sync create --path=/some/path  → 下载 local 到指定目录（--path 必须有值）
 ```
 
 ---
