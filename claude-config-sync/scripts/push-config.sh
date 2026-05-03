@@ -6,8 +6,6 @@ set -e
 
 SCOPE="$1"
 REPO_URL="$2"
-CONFIG_REPO="claude-code-config-sync"
-GITEA_API="https://api.github.com"
 GH_TOKEN="${GITHUB_TOKEN:-}"
 
 if [ -z "$GH_TOKEN" ]; then
