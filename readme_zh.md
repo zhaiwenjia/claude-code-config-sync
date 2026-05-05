@@ -45,6 +45,25 @@ Claude Code 配置同步插件，通过 GitHub 或 GitLab 实现配置管理。
 | global | ~/.claude/（不含 CLAUDE.md） | claude-code-config-sync/global/ |
 | local | .claude/ + CLAUDE.md | claude-code-config-sync/local/ |
 
+## 更新插件
+
+```bash
+/plugin marketplace update zhaiwenjia/claude-code-config-sync
+```
+
+或者重新安装：
+
+```bash
+/plugin remove claude-config-sync
+/plugin install claude-config-sync
+```
+
+### 更新 MCP 包
+
+```bash
+npm install -g @zhaiwenjia/claude-config-sync-mcp
+```
+
 ## 许可
 
 MIT

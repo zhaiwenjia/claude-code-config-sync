@@ -54,6 +54,27 @@ The MCP server will be installed automatically.
 - `GITHUB_TOKEN` - GitHub access token
 - `GITLAB_TOKEN` - GitLab access token
 
+## Updating
+
+### Update the plugin
+
+```bash
+/plugin marketplace update zhaiwenjia/claude-code-config-sync
+```
+
+Or reinstall:
+
+```bash
+/plugin remove claude-config-sync
+/plugin install claude-config-sync
+```
+
+### Update the MCP package
+
+```bash
+npm install -g @zhaiwenjia/claude-config-sync-mcp
+```
+
 ## License
 
 MIT
