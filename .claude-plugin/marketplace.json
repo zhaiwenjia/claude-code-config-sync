@@ -1,0 +1,16 @@
+{
+  "name": "claude-config-sync-dev",
+  "description": "Development marketplace for claude-config-sync",
+  "owner": {
+    "name": "Zhai Wenjia"
+  },
+  "plugins": [{
+    "name": "claude-config-sync",
+    "description": "Claude Code 配置同步工具",
+    "version": "0.1.0",
+    "source": "./",
+    "author": {
+      "name": "Zhai Wenjia"
+    }
+  }]
+}

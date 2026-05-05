@@ -1,0 +1,15 @@
+{
+  "name": "claude-config-sync",
+  "version": "0.1.0",
+  "description": "Claude Code 配置同步工具，通过 GitHub/GitLab 实现配置管理",
+  "author": {
+    "name": "Zhai Wenjia"
+  },
+  "keywords": ["sync", "config", "github", "gitlab"],
+  "mcpServers": {
+    "claude-config-sync": {
+      "command": "npx",
+      "args": ["@laozhai/claude-config-sync-mcp"]
+    }
+  }
+}
