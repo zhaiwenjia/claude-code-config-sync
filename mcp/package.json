@@ -1,5 +1,5 @@
 {
-  "name": "@laozhai/claude-config-sync-mcp",
+  "name": "@vincent507/claude-config-sync-mcp",
   "version": "0.1.0",
   "description": "Claude Config Sync MCP Server - Git push/pull for Claude Code",
   "main": "dist/index.js",
