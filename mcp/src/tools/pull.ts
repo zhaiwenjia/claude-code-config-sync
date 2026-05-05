@@ -123,5 +123,6 @@ async function copyDirectory(src: string, dest: string): Promise<void> {
 
 function sanitizeErrorMessage(message: string, token: string): string {
   if (!token) return message;
-  return message.replace(new RegExp(token, "g"), "***");
+  const escapedToken = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return message.replace(new RegExp(escapedToken, "g"), "***");
 }
