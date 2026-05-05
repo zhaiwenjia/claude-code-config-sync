@@ -6,7 +6,6 @@
     "name": "Zhai Wenjia"
   },
   "keywords": ["sync", "config", "github", "gitlab"],
-  "commands": ["commands"],
   "mcpServers": {
     "claude-config-sync": {
       "command": "npx",
