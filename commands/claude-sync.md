@@ -27,9 +27,7 @@ Claude Code 配置同步工具，通过 GitHub 或 GitLab 实现配置管理。
 | global | ~/.claude/（不含 CLAUDE.md） | claude-code-config-sync/global/ |
 | local | .claude/ + CLAUDE.md | claude-code-config-sync/local/ |
 
-## 合并策略
+## 环境变量
 
-- 文件不存在 → 新增
-- 文件存在且相同 → 跳过
-- 文件存在且不同 → **由 Claude Code CLI 内置 LLM 分析差异，增量更新到远程**
-- **覆盖确认**：远程有同名配置时，询问用户确认覆盖 / 否认终止
+- `GITHUB_TOKEN` - GitHub 访问令牌
+- `GITLAB_TOKEN` - GitLab 访问令牌
