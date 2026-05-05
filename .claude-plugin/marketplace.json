@@ -7,7 +7,7 @@
   "plugins": [{
     "name": "claude-config-sync",
     "description": "Claude Code 配置同步工具",
-    "version": "0.1.0",
+    "version": "0.1.4",
     "source": "./",
     "author": {
       "name": "Zhai Wenjia"
