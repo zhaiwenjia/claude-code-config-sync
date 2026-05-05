@@ -18,6 +18,8 @@ const CONFIG_REPO = "claude-code-config-sync";
 const TEMP_DIR = path.join(os.tmpdir(), CONFIG_REPO);
 
 export async function gitPush(scope: "global" | "local"): Promise<CallToolResult> {
+  let token = "";
+
   try {
     // 1. 获取当前仓库的远程 URL
     const git: SimpleGit = simpleGit();
@@ -33,7 +35,7 @@ export async function gitPush(scope: "global" | "local"): Promise<CallToolResult
 
     // 2. 检测平台并获取凭证
     const platform = detectPlatformFromUrl(originRemote.url);
-    const token = getToken(platform);
+    token = getToken(platform);
     const { owner } = parseGitUrl(originRemote.url);
     const configRepoUrl = getConfigRepoUrl(platform, owner);
 
@@ -71,8 +73,7 @@ export async function gitPush(scope: "global" | "local"): Promise<CallToolResult
     }
 
     // 5. 复制配置到仓库
-    const scopeDir = scope; // "global" or "local"
-    const destDir = path.join(targetDir, scopeDir);
+    const destDir = path.join(targetDir, scope);
 
     // 复制配置目录
     await copyDirectory(configPath, destDir);
@@ -95,14 +96,12 @@ export async function gitPush(scope: "global" | "local"): Promise<CallToolResult
     // 设置远程 URL（带认证）
     await configGit.remote(["set-url", "origin", authUrl]);
 
-    await configGit.push(["-u", "origin", "main", "--force"]);
+    // 检测当前分支名
+    const branchName = await detectCurrentBranch()
+      .catch(() => "master");
 
-    // 如果是首次推送，可能需要设置默认分支
-    try {
-      await configGit.push(["--set-upstream", "origin", "main"]);
-    } catch {
-      // 分支已设置，忽略错误
-    }
+    // 推送到远程仓库
+    await configGit.push(["-u", "origin", branchName]);
 
     // 7. 清理临时目录
     fs.rmSync(targetDir, { recursive: true, force: true });
@@ -112,8 +111,9 @@ export async function gitPush(scope: "global" | "local"): Promise<CallToolResult
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+    const sanitizedMessage = sanitizeErrorMessage(errorMessage, token);
     return {
-      content: [{ type: "text", text: `错误: ${errorMessage}` }],
+      content: [{ type: "text", text: `错误: ${sanitizedMessage}` }],
       isError: true,
     };
   }
@@ -154,4 +154,17 @@ async function copyDirectory(src: string, dest: string): Promise<void> {
       fs.copyFileSync(srcPath, destPath);
     }
   }
+}
+
+async function detectCurrentBranch(): Promise<string> {
+  const git: SimpleGit = simpleGit();
+  const branch = await git.branch();
+  return branch.current;
+}
+
+function sanitizeErrorMessage(message: string): string {
+  // 移除可能的 token 信息
+  return message
+    .replace(/x-access-token:[^@]+@/g, "x-access-token:***@")
+    .replace(/oauth2:[^@]+@/g, "oauth2:***@");
 }
