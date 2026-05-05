@@ -1,7 +1,7 @@
 # Claude Config Sync
 
-[![npm](https://img.shields.io/npm/v/@laozhai/claude-config-sync-mcp)](https://www.npmjs.com/package/@laozhai/claude-config-sync-mcp)
-[![npm downloads](https://img.shields.io/npm/dm/@laozhai/claude-config-sync-mcp)](https://www.npmjs.com/package/@laozhai/claude-config-sync-mcp)
+[![npm](https://img.shields.io/npm/v/@zhaiwenjia/claude-config-sync-mcp)](https://www.npmjs.com/package/@zhaiwenjia/claude-config-sync-mcp)
+[![npm downloads](https://img.shields.io/npm/dm/@zhaiwenjia/claude-config-sync-mcp)](https://www.npmjs.com/package/@zhaiwenjia/claude-config-sync-mcp)
 [![中文文档](https://img.shields.io/badge/中文文档-readme_zh-blue?style=social)](readme_zh.md)
 
 A Claude Code plugin for synchronizing configuration across GitHub or GitLab.
@@ -15,12 +15,12 @@ A Claude Code plugin for synchronizing configuration across GitHub or GitLab.
 ## Architecture
 
 - **Plugin**: Claude Code plugin defining slash commands and Skills
-- **MCP Server**: `@laozhai/claude-config-sync-mcp`, provides actual git operation tools
+- **MCP Server**: `@zhaiwenjia/claude-config-sync-mcp`, provides actual git operation tools
 
 ## Installation
 
 ```bash
-/plugin marketplace add laozhai/claude-code-config-sync
+/plugin marketplace add zhaiwenjia/claude-code-config-sync
 /plugin install claude-config-sync
 ```
 

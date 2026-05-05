@@ -11,12 +11,12 @@ Claude Code 配置同步插件，通过 GitHub 或 GitLab 实现配置管理。
 ## 技术架构
 
 - **插件**: Claude Code 插件，定义 slash command 和 Skill
-- **MCP 服务器**: `@laozhai/claude-config-sync-mcp`，提供实际的 git 操作工具
+- **MCP 服务器**: `@zhaiwenjia/claude-config-sync-mcp`，提供实际的 git 操作工具
 
 ## 安装
 
 ```bash
-/plugin marketplace add laozhai/claude-code-config-sync
+/plugin marketplace add zhaiwenjia/claude-code-config-sync
 /plugin install claude-config-sync
 ```
 
