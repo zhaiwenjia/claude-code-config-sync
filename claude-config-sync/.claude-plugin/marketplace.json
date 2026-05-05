@@ -1,9 +1,0 @@
-{
-  "name": "claude-config-sync",
-  "version": "0.1.0",
-  "description": "Claude Code 配置同步工具，通过 GitHub/GitLab 实现跨机器同步",
-  "author": {
-    "name": "Zhai Wenjia"
-  },
-  "keywords": ["sync", "config", "github", "gitlab"]
-}
