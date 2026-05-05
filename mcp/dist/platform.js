@@ -30,8 +30,8 @@ export function getToken(platform) {
 }
 export function getConfigRepoUrl(platform, owner) {
     const baseUrl = platform === "github"
-        ? `https://github.com/${owner}/claude-code-config-sync.git`
-        : `https://gitlab.com/${owner}/claude-code-config-sync.git`;
+        ? `https://github.com/${owner}/claude-sync.git`
+        : `https://gitlab.com/${owner}/claude-sync.git`;
     return baseUrl;
 }
 export function getGlobalConfigPath() {

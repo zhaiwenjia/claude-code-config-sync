@@ -46,8 +46,8 @@ export function getToken(platform: Platform): string {
 
 export function getConfigRepoUrl(platform: Platform, owner: string): string {
   const baseUrl = platform === "github"
-    ? `https://github.com/${owner}/claude-code-config-sync.git`
-    : `https://gitlab.com/${owner}/claude-code-config-sync.git`;
+    ? `https://github.com/${owner}/claude-sync.git`
+    : `https://gitlab.com/${owner}/claude-sync.git`;
   return baseUrl;
 }
 
