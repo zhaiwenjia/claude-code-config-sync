@@ -1,6 +1,6 @@
 {
   "name": "@zhaiwenjia/claude-config-sync-mcp",
-  "version": "0.1.3",
+  "version": "0.1.5",
   "description": "Claude Config Sync MCP Server - Git push/pull for Claude Code",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
