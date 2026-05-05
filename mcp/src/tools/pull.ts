@@ -24,8 +24,9 @@ export async function gitPull(scope: "global" | "local"): Promise<CallToolResult
     const git: SimpleGit = simpleGit();
     const remotes = await git.getRemotes(true);
     const originRemote = remotes.find((r) => r.name === "origin");
+    const remoteUrl = originRemote?.refs?.fetch || originRemote?.refs?.push;
 
-    if (!originRemote?.url) {
+    if (!remoteUrl) {
       return {
         content: [{ type: "text", text: "错误: 未找到 origin 远程仓库" }],
         isError: true,
@@ -33,9 +34,9 @@ export async function gitPull(scope: "global" | "local"): Promise<CallToolResult
     }
 
     // 2. 检测平台并获取凭证
-    const platform = detectPlatformFromUrl(originRemote.url);
+    const platform = detectPlatformFromUrl(remoteUrl);
     token = getToken(platform);
-    const { owner } = parseGitUrl(originRemote.url);
+    const { owner } = parseGitUrl(remoteUrl);
     const configRepoUrl = getConfigRepoUrl(platform, owner);
 
     // 3. 确定配置目标路径
