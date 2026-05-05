@@ -1,0 +1,20 @@
+{
+  "name": "@laozhai/claude-config-sync-mcp",
+  "version": "0.1.0",
+  "description": "Claude Config Sync MCP Server - Git push/pull for Claude Code",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "prepublish": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "simple-git": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
