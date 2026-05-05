@@ -1,6 +1,5 @@
 {
   "name": "claude-config-sync-dev",
-  "description": "Development marketplace for claude-config-sync",
   "owner": {
     "name": "Zhai Wenjia"
   },
