@@ -1,6 +1,6 @@
 {
   "name": "@laozhai/claude-config-sync-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Claude Config Sync MCP Server - Git push/pull for Claude Code",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,8 +22,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Zhai-Wenjia/claude-code-config-sync.git"
+    "url": "https://github.com/zhaiwenjia/claude-code-config-sync.git"
   },
+  "homepage": "https://github.com/zhaiwenjia/claude-code-config-sync#readme",
   "keywords": [
     "claude",
     "claude-code",

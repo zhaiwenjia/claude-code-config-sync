@@ -1,50 +1,59 @@
 # Claude Config Sync
 
-Claude Code 配置同步插件，通过 GitHub 或 GitLab 实现配置管理。
+[![npm](https://img.shields.io/npm/v/@laozhai/claude-config-sync-mcp)](https://www.npmjs.com/package/@laozhai/claude-config-sync-mcp)
+[![npm downloads](https://img.shields.io/npm/dm/@laozhai/claude-config-sync-mcp)](https://www.npmjs.com/package/@laozhai/claude-config-sync-mcp)
+[![中文文档](https://img.shields.io/badge/中文文档-readme_zh-blue?style=social)](readme_zh.md)
 
-## 功能
+A Claude Code plugin for synchronizing configuration across GitHub or GitLab.
 
-- **配置分层**: 支持 global（~/.claude/）和 local（代码仓内）两种配置
-- **双平台支持**: 支持 GitHub 和 GitLab
-- **智能合并**: 本地差异化处理，避免覆盖重要配置
+## Features
 
-## 技术架构
+- **Layered Configuration**: Supports global (~/.claude/) and local (in-repo) configurations
+- **Dual Platform Support**: Works with both GitHub and GitLab
+- **Smart Merge**: Differential processing to avoid overwriting important configs
 
-- **插件**: Claude Code 插件，定义 slash command 和 Skill
-- **MCP 服务器**: `@laozhai/claude-config-sync-mcp`，提供实际的 git 操作工具
+## Architecture
 
-## 安装
+- **Plugin**: Claude Code plugin defining slash commands and Skills
+- **MCP Server**: `@laozhai/claude-config-sync-mcp`, provides actual git operation tools
+
+## Installation
 
 ```bash
 /plugin marketplace add laozhai/claude-code-config-sync
 /plugin install claude-config-sync
 ```
 
-安装插件后，MCP 服务器会自动下载安装。
+The MCP server will be installed automatically.
 
-## 使用
+## Usage
 
-### 上传配置 (push)
-
-```bash
-/claude-sync push global  # 上传 global 配置
-/claude-sync push local   # 上传 local 配置
-```
-
-### 下载配置 (pull)
+### Push Configuration
 
 ```bash
-/claude-sync pull global  # 下载 global 配置
-/claude-sync pull local   # 下载 local 配置
+/claude-sync push global  # Push global config
+/claude-sync push local   # Push local config
 ```
 
-## 配置说明
+### Pull Configuration
 
-| 类型 | 来源 | 目的地 |
-|------|------|--------|
-| global | ~/.claude/（不含 CLAUDE.md） | claude-code-config-sync/global/ |
+```bash
+/claude-sync pull global  # Pull global config
+/claude-sync pull local   # Pull local config
+```
+
+## Configuration Reference
+
+| Type | Source | Destination |
+|------|--------|-------------|
+| global | ~/.claude/ (excluding CLAUDE.md) | claude-code-config-sync/global/ |
 | local | .claude/ + CLAUDE.md | claude-code-config-sync/local/ |
 
-## 许可
+## Environment Variables
+
+- `GITHUB_TOKEN` - GitHub access token
+- `GITLAB_TOKEN` - GitLab access token
+
+## License
 
 MIT
